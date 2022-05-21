@@ -5,6 +5,7 @@ import (
 	//"io/ioutil"
 	"fmt"
 	"html"
+	"io/ioutil"
 	"log"
 	"net/http"
 
@@ -42,6 +43,13 @@ func GetPayments(w http.ResponseWriter, r *http.Request) {
 		clientes asegurados han realizado e IMPLEMENTAR ESTE MICROSERVICIO, deberás
 		CONSULTAR EL ARCHIVO 'payment_records.json' GENERADO POR EL COMPONENTE SIMULADOR.
 	*/
-	w.WriteHeader(500)
-	fmt.Fprintf(w, "%q not implemented yet", html.EscapeString(r.URL.Path))
+
+	dat, err := ioutil.ReadFile("/data/payment_records.json")
+	if err != nil {
+		w.WriteHeader(500)
+		w.Write([]byte("Error al leer"))
+	} else {
+		w.WriteHeader(200)
+		w.Write(dat)
+	}
 }
