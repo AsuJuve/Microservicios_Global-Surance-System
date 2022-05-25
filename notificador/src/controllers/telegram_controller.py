@@ -3,8 +3,8 @@
 #-------------------------------------------------------------------------
 # Archivo: telegram_controller.py
 # Capitulo: Estilo Microservicios
-# Autor(es): Perla Velasco & Yonathan Mtz. & Jorge Solís
-# Version: 3.0.0 Febrero 2022
+# Autor(es): Perla Velasco & Yonathan Mtz. & Jorge Solís & Elias Beltran & Juventino Aguilar & Roman Guzman & Jorge Diaz
+# Version: 3.0.0 Mayo 2022
 # Descripción:
 #
 #   Ésta clase define el controlador del microservicio API. 
@@ -25,23 +25,34 @@
 #
 #-------------------------------------------------------------------------
 from flask import request, jsonify
+from src.helpers.config import load_config
 import json
+import telepot
+import base64
+import tempfile
 
 class TelegramController:
 
     @staticmethod
     def send_message():
         data = json.loads(request.data)
+
         if not data:
             return jsonify({"msg": "invalid request"}), 400
-        """
-            Agrega la lógica de negocio para notificar al 
-            cliente asegurado aquí.
 
-            Nota: ten en cuenta que el componente cliente enviará 
-            en formato json, dentro del body, la siguiente información:
-            {
-                "message": "texto a notificar"
-            }
-        """
-        return jsonify({"msg": "not implemented yet"}), 500
+        config = load_config()
+        bot = telepot.Bot(config["TELEGRAM"]["TOKEN"])
+        if "file" in data:
+            poliza = base64.b64decode(data["file"])
+            temp = tempfile.TemporaryFile()
+            try:
+                temp.write(poliza)
+                temp.seek(0)
+  
+                bot.sendDocument(config["TELEGRAM"]["CHAT_ID"], document=("poliza.pdf", temp))
+            finally:
+                temp.close()
+        else:
+            bot.sendMessage(config["TELEGRAM"]["CHAT_ID"], data["message"])
+
+        return jsonify({"msg": "Cliente notificado correctamente"}), 200
