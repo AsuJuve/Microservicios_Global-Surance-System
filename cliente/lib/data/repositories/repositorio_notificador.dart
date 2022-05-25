@@ -1,8 +1,8 @@
 // -------------------------------------------------------------------------
 //  Archivo: notifier_repository.dart
 //  Capitulo: Estilo Microservicios
-//  Autor(es): Perla Velasco & Yonathan Mtz. & Jorge Solís
-//  Version: 3.0.0 Febrero 2022
+//  Autor(es): Perla Velasco & Yonathan Mtz. & Jorge Solís & Juventino Aguilar & Elías Emiliano & Jorge Díaz & Román Guzmán
+//  Version: 3.0.0 Mayo 2022
 //  Descripción:
 //
 //    Ésta clase define el uso de la conexión con un Microservicio externo.
@@ -21,6 +21,14 @@
 //    |                        |                          |   un mensaje       |
 //    |                        |                          |   específico.      |
 //    +------------------------+--------------------------+--------------------+
+//    |   sendFile()           | - file: archivo en base  | - Utiliza la       |
+//    |                        |   64 a enviar            |   conexión con el  |
+//    |                        |                          |   microservicio    |
+//    |                        |                          |   para enviar      |
+//    |                        |                          |   el archivo de la |
+//    |                        |                          |   póliza del       |
+//    |                        |                          |   cliente          |
+//    +------------------------+--------------------------+--------------------+
 //
 //
 // -------------------------------------------------------------------------
@@ -35,6 +43,12 @@ class RepositorioNotificador {
   Future<http.Response> sendNotification(String message) async {
     http.Response response =
         await notifierAPI.enviarNotificacionTelegram(message);
+    return response;
+  }
+
+  Future<http.Response> sendFile(String file) async {
+    http.Response response =
+        await notifierAPI.enviarArchivoTelegram(file);
     return response;
   }
 }

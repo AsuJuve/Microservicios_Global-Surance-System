@@ -1,8 +1,8 @@
 // -------------------------------------------------------------------------
 //  Archivo: notifier_api.dart
 //  Capitulo: Estilo Microservicios
-//  Autor(es): Perla Velasco & Yonathan Mtz. & Jorge Solís
-//  Version: 3.0.0 Febrero 2022
+//  Autor(es): Perla Velasco & Yonathan Mtz. & Jorge Solís & Juventino Aguilar & Elías Emiliano & Jorge Díaz & Román Guzmán
+//  Version: 3.0.0 Mayo 2022
 //  Descripción:
 //
 //    Ésta clase define la conexión con un Microservicio externo.
@@ -20,6 +20,15 @@
 //    |                        |                          |   través del       |
 //    |                        |                          |   Microservicio de |
 //    |                        |                          |   notificaciones   |
+//    +------------------------+--------------------------+--------------------+
+//    |enviarArchivoTelegram() | - file: archivo en base  | - Realiza el       |
+//    |                        |   64 a enviar            |   envió del        |
+//    |                        |                          |   archivo que      |
+//    |                        |                          |   contiene la      |
+//    |                        |                          |   poliza del       |
+//    |                        |                          |   cliente a través |
+//    |                        |                          |   del Microservicio|
+//    |                        |                          |   de notificaciones|
 //    +------------------------+--------------------------+--------------------+
 //
 //
@@ -39,6 +48,17 @@ class NotificadorAPI {
 
   Future<http.Response> enviarNotificacionTelegram(String message) async {
     Map<String, dynamic> request = {"message": message};
+    String endpoint = "/notificador/telegram";
+    String baseUrl = "$gatewayHost:$gatewayPort";
+    var response = await http.post(
+      Uri.http(baseUrl, endpoint),
+      body: jsonEncode(request),
+    );
+    return response;
+  }
+
+  Future<http.Response> enviarArchivoTelegram(String file) async {
+    Map<String, dynamic> request = {"file": file};
     String endpoint = "/notificador/telegram";
     String baseUrl = "$gatewayHost:$gatewayPort";
     var response = await http.post(
