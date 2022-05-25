@@ -46,3 +46,9 @@ class NotifyTelegram extends HomeEvent {
 
   const NotifyTelegram(this.cliente);
 }
+
+class NotifyPolicyTelegram extends HomeEvent {
+  final Cliente cliente;
+  
+  const NotifyPolicyTelegram(this.cliente);
+}

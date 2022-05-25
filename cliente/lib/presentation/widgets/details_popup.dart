@@ -289,6 +289,22 @@ class _DetailsPopUpState extends State<DetailsPopUp> {
               const SizedBox(
                 height: 20.0,
               ),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  ActionButton(
+                    callback: () {
+                      BlocProvider.of<HomeBloc>(context).add(
+                        NotifyPolicyTelegram(widget.client),
+                      );
+                    },
+                    text: "enviar poliza a cliente",
+                  ),
+                ],
+              ),
+              const SizedBox(
+                height: 20.0,
+              ),
             ],
           ),
         ),
