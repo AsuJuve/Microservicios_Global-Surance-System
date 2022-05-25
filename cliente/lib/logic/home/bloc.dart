@@ -1,8 +1,8 @@
 // -------------------------------------------------------------------------
 //  Archivo: bloc.dart
 //  Capitulo: Estilo Microservicios
-//  Autor(es): Perla Velasco & Yonathan Mtz. & Jorge Solís
-//  Version: 3.0.0 Febrero 2022
+//  Autor(es): Perla Velasco & Yonathan Mtz. & Jorge Solís & Román Guzmán Valles & Elías Beltrán Gonzalez & Juventino Aguilar Correa & Jorge Luis Diaz Serna
+//  Version: 3.0.1 Mayo 2022
 //  Descripción:
 //
 //    Ésta clase define la lógica de los eventos que se pueden ejecutar en
@@ -59,6 +59,16 @@
 //    |                             |                          |   del cobro de la  |
 //    |                             |                          |   póliza de seguro |
 //    +-----------------------------+--------------------------+--------------------+
+//    | _mapNotifyPolicyTelegramTo  |                          |                    |
+//    |  State()                    | - event: evento que se   | - Realiza la       |
+//    |                             |   ejecutó en la pantalla |   conexión con el  |
+//    |                             |                          |   microservicio    |
+//    |                             |                          |   notifier para el |
+//    |                             |                          |   envío de las     |
+//    |                             |                          |   polizas de seguro|
+//    |                             |                          |                    |
+//    |                             |                          |                    |
+//    +-----------------------------+--------------------------+--------------------+
 //
 //
 // -------------------------------------------------------------------------
@@ -73,6 +83,7 @@ import 'package:Cliente/data/repositories/repositorio_reporteador.dart';
 import 'package:Cliente/logic/home/events.dart';
 import 'package:Cliente/logic/home/states.dart';
 import 'package:bloc/bloc.dart';
+import 'package:http/http.dart' as http;
 
 class HomeBloc extends Bloc<HomeEvent, HomeState> {
   final RepositorioClientes clientsRepository;
@@ -108,6 +119,9 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
     }
     if (event is NotifyTelegram) {
       yield* _mapNotifyTelegramToState(event);
+    }
+    if (event is NotifyPolicyTelegram) {
+      yield* _mapNotifyPolicyTelegramToState(event);
     }
   }
 
@@ -215,6 +229,34 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
       } else {
         yield const ShowNotification(
             "servicio de notificaciones no disponible");
+      }
+    } on Exception catch (e) {
+      yield const ShowNotification(
+          "error al interactuar con el servicio de notificaciones");
+    }
+  }
+
+  Stream<HomeState> _mapNotifyPolicyTelegramToState(NotifyPolicyTelegram event) async* {
+    yield InitialState();
+    try {
+      var policyStatus = await reporterRepository.checkServiceStatus();
+      if (policyStatus.statusCode == 200) {
+        String urlReport = reporterRepository.downloadPolicy(event.cliente);
+        var policyFile = await http.get(Uri.parse(urlReport));
+        final base64Encoder = base64.encoder;
+        String policyFileEnc = base64Encoder.convert(policyFile.body.codeUnits);
+        var notifyResponse = await notifierRepository.sendFile(
+            policyFileEnc);
+        if (notifyResponse.statusCode == 200) {
+          yield const ShowNotification("póliza enviada");
+        } else {
+          yield const ShowNotification(
+              "servicio de notificaciones no disponible");
+        }
+      
+      } else {
+        yield const ShowNotification(
+            "error al interactuar con el servicio de reportes");
       }
     } on Exception catch (e) {
       yield const ShowNotification(
